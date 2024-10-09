@@ -1,12 +1,35 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import turnos from './screens/turnos';
+import agregarTurnos from './screens/agregarTurnos';
+
 
 export default function App() {
+const Stack = createStackNavigator();
+
+function MyStack() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Stack.Navigator>
+      
+      <Stack.Screen
+      name="Turnos"
+      component={turnos}
+      />
+      <Stack.Screen
+      name="AgregarTurno"
+      component={agregarTurnos}
+      />
+
+    </Stack.Navigator>
+  );
+}
+
+  return (
+    <NavigationContainer>
+      <MyStack/>
+    </NavigationContainer>
   );
 }
 
