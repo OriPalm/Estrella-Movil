@@ -15,12 +15,6 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={login}
-          options={{
-            title:"Login",
-            headerTitleAlign:"center",
-            headerStyle:{backgroundColor:"pink"},
-            headerTintColor:"black",
-          }}
         />
       </Stack.Navigator>
     );
