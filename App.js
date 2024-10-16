@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import { createStackNavigator } from '@react-navigation/stack';
 import Perfil from './screens/perfil';
-import Login from './screens/loginn'; // Asegúrate de que el nombre del archivo sea correcto
+import Login from './screens/login'; // Asegúrate de que el nombre del archivo sea correcto
 import Recuperarcontra from './screens/Recuperarcontraa'; // Actualiza el nombre del archivo
 
 export default function App() {
