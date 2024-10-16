@@ -1,6 +1,7 @@
 import { Text, StyleSheet, View, ScrollView, Image, Pressable, onPressFunction } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native'; // Importar navegación
+import Icon from 'react-native-vector-icons/Ionicons';  // Ejemplo con Ionicons
 
 
 export default function Perfil() {
@@ -24,7 +25,7 @@ export default function Perfil() {
           <Text style={styles.email}>estrellaestilista@gmail.com</Text>
           <Pressable onPress={onPressFunction} style={styles.boton}>
             <Text style={styles.cerrarsesion}>Cerrar Sesión</Text>
-            <Text style={styles.icono}>{'>'}</Text>
+            <Icon name="chevron-forward-outline" style={styles.icono} />
           </Pressable>
       </View>
     </ScrollView>
@@ -63,11 +64,15 @@ const styles = StyleSheet.create({
 
   cerrarsesion: {
     fontSize: 16,
+    marginTop: 38,
+
   },
 
   icono: {
     color: 'grey',
-    fontSize: 18,
+    fontSize: 19,
+    marginTop: 41,
+
   },
 
   boton: {
@@ -75,5 +80,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
-    marginTop: 38},
+     },
   })
