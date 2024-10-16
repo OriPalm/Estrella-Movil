@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
 import Perfil from './screens/perfil';
+import Login from './screens/loginn'; // Asegúrate de que el nombre del archivo sea correcto
+import Recuperarcontra from './screens/Recuperarcontraa'; // Actualiza el nombre del archivo
 
 export default function App() {
-
   const Stack = createStackNavigator();
   function MyStack() {
     return (
@@ -21,6 +21,14 @@ export default function App() {
           },
       
          }} />
+         <Stack.Screen
+          name="Login"
+          component={Login}
+        />
+        <Stack.Screen
+          name="Recuperarcontra"
+          component={Recuperarcontra} // Asegúrate de que el nombre del componente sea correcto
+        />
       </Stack.Navigator>
     );
   }
@@ -28,17 +36,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <MyStack />
+      <StatusBar style='auto' />
     </NavigationContainer>
-      
   );
 }
-  
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
