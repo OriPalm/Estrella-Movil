@@ -1,9 +1,13 @@
+import React, { useState } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
-import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts} from 'expo-font'
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons'; // Importa los íconos de Expo
 
 export default function Login() {
+  const navigation = useNavigation();
+  const [passwordVisible, setPasswordVisible] = useState(false); // Estado para manejar la visibilidad de la contraseña
+
   return (
     <View style={styles.container}>
       <Image 
@@ -16,13 +20,28 @@ export default function Login() {
         placeholder='Correo Electrónico'
         style={styles.textinput}
       />
-      <TextInput 
-        placeholder='Contraseña'
-        style={styles.textinput}
-        secureTextEntry
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput 
+          placeholder='Contraseña'
+          style={styles.textinputPassword}
+          secureTextEntry={!passwordVisible} // Alterna la visibilidad de la contraseña
+        />
+        <TouchableOpacity 
+          style={styles.eyeIcon}
+          onPress={() => setPasswordVisible(!passwordVisible)} // Alterna el estado de visibilidad
+        >
+          <Ionicons 
+            name={passwordVisible ? 'eye' : 'eye-off'} // Cambia el ícono según el estado
+            size={24} 
+            color="gray" 
+          />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity style={styles.forgotPasswordContainer}>
+      <TouchableOpacity 
+        style={styles.forgotPasswordContainer}
+        onPress={() => navigation.navigate('Recuperarcontra')}
+      >
         <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
@@ -40,21 +59,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-
   },
   image: {
     width: 420, 
     height: 150, 
     marginBottom: 80,
+    marginTop: 80,
   },
   titulo: {
-    fontSize: 50,  // Tamaño ajustado
-    color: '#000', // Color ajustado
+    fontSize: 50,
+    color: '#000',
     fontWeight: 'bold',
     marginBottom: 20,
     marginLeft: 45,
     alignSelf: 'flex-start',
-
   },
   textinput: {
     borderWidth: 1,
@@ -62,21 +80,38 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingStart: 20,
     width: '80%',
-    height: 55,  // Tamaño ajustado
+    height: 55,
     marginTop: 20,
-    borderRadius: 10,  // Radio ajustado
+    borderRadius: 10,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 10,
+    width: '80%',
+    height: 55,
+    marginTop: 20,
+    paddingRight: 10, // Espacio para el ícono del ojo
+  },
+  textinputPassword: {
+    flex: 1,
+    padding: 15,
+    paddingStart: 20,
+  },
+  eyeIcon: {
+    padding: 5,
   },
   forgotPasswordContainer: {
-    width: '80%',  // Asegura que el ancho sea igual al de los inputs
-    alignSelf: 'flex-start',  // Alinea el texto hacia la izquierda
-    marginLeft: 45,  // Ajusta el margen para alinearlo con el título
+    width: '80%',
+    alignSelf: 'flex-start',
+    marginLeft: 45,
   },
   forgotPasswordText: {
-    color: '#FF0000',  // Rojo
+    color: '#FF0000',
     fontSize: 14,
     marginTop: 10,
-    textDecorationLine: 'underline',
-    
   },
   button: {
     backgroundColor: '#ed3241',
