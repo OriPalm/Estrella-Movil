@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions, Modal, TextInput, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Importar Ionicons
 
 const screenWidth = Dimensions.get('window').width; // Ancho de la pantalla
@@ -22,46 +22,54 @@ const turnosPorDia = {
 };
 
 const Turnos = () => {
-  // Función para obtener el día actual
+  const [diaSeleccionado, setDiaSeleccionado] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [nuevoTurno, setNuevoTurno] = useState({ hora: '', cliente: '', servicio: '' });
+
   const obtenerDiaActual = () => {
     const hoy = new Date();
-    // Simulamos que estamos en octubre 2024
-    if (hoy.getMonth() === 9) { // Octubre es el mes 9 (JavaScript cuenta meses desde 0)
-      return hoy.getDate().toString(); // Devolvemos el día del mes en formato string
+    if (hoy.getMonth() === 9) {
+      return hoy.getDate().toString();
     }
-    // Si no es octubre, seleccionamos un día por defecto (por ejemplo, 10)
     return '10';
   };
 
-  // Estado para el día seleccionado, inicializado con el día actual
-  const [diaSeleccionado, setDiaSeleccionado] = useState('');
-
-  // Efecto para seleccionar el día actual al montar el componente
   useEffect(() => {
     const diaHoy = obtenerDiaActual();
-    setDiaSeleccionado(diaHoy); // Configuramos el estado con el día actual
+    setDiaSeleccionado(diaHoy);
   }, []);
 
-  // Función para manejar el cambio de día
   const cambiarDia = (nuevoDia) => {
     setDiaSeleccionado(nuevoDia);
   };
 
-  // Obtener los turnos para el día seleccionado
   const turnosDelDia = turnosPorDia[diaSeleccionado] || [];
+
+  const agregarNuevoTurno = () => {
+    if (nuevoTurno.hora && nuevoTurno.cliente && nuevoTurno.servicio) {
+      const nuevoId = (turnosDelDia.length + 1).toString();
+      turnosPorDia[diaSeleccionado].push({
+        id: nuevoId,
+        hora: nuevoTurno.hora,
+        cliente: nuevoTurno.cliente,
+        servicio: nuevoTurno.servicio,
+        estado: 'Pendiente',
+      });
+      setNuevoTurno({ hora: '', cliente: '', servicio: '' });
+      setModalVisible(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Calendario - Octubre 2024</Text>
-      
-      {/* Calendario de días */}
+
       <View style={styles.calendarContainer}>
-        <TouchableOpacity style={styles.botonNuevoTurno}>
+        <TouchableOpacity style={styles.botonNuevoTurno} onPress={() => setModalVisible(true)}>
           <Ionicons name="add-circle-outline" size={24} color="white" />
           <Text style={styles.botonTexto}>Nuevo Turno</Text>
         </TouchableOpacity>
 
-        {/* Días de la semana */}
         <View style={styles.daysContainer}>
           <TouchableOpacity onPress={() => cambiarDia('10')}>
             <Text style={diaSeleccionado === '10' ? styles.dayActive : styles.dayInactive}>JUE</Text>
@@ -77,7 +85,6 @@ const Turnos = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Números de los días */}
         <View style={styles.dateContainer}>
           <TouchableOpacity onPress={() => cambiarDia('10')}>
             <Text style={diaSeleccionado === '10' ? styles.dateActive : styles.dateInactive}>10</Text>
@@ -94,7 +101,6 @@ const Turnos = () => {
         </View>
       </View>
 
-      {/* Lista de turnos o mensaje de no turnos */}
       {turnosDelDia.length > 0 ? (
         <FlatList
           data={turnosDelDia}
@@ -124,6 +130,35 @@ const Turnos = () => {
       ) : (
         <Text style={styles.noTurnosTexto}>No hay turnos para este día</Text>
       )}
+
+      {/* Modal para agregar nuevo turno */}
+      <Modal visible={modalVisible} animationType="fade" transparent={true}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Agregar Nuevo Turno</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Hora"
+              value={nuevoTurno.hora}
+              onChangeText={(text) => setNuevoTurno({ ...nuevoTurno, hora: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Cliente"
+              value={nuevoTurno.cliente}
+              onChangeText={(text) => setNuevoTurno({ ...nuevoTurno, cliente: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Servicio"
+              value={nuevoTurno.servicio}
+              onChangeText={(text) => setNuevoTurno({ ...nuevoTurno, servicio: text })}
+            />
+            <Button title="Agregar" onPress={agregarNuevoTurno} />
+            <Button title="Cancelar" color="red" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -183,43 +218,30 @@ const styles = StyleSheet.create({
   turnoContainer: {
     width: screenWidth - 40,
     backgroundColor: '#fff',
-    borderRadius: 20, // Bordes redondeados para el contenedor principal
+    borderRadius: 20,
     padding: 10,
     marginVertical: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3, // Sombra en Android
+    borderColor: '#ccc',
   },
   turnoContent: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   horaContainer: {
-    backgroundColor: '#ff5555', // Fondo de la hora
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 15, // Bordes redondeados
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15, // Espaciado entre hora y texto
+    flex: 1,
   },
   hora: {
     fontSize: 16,
+    textAlign: 'center',
     fontWeight: 'bold',
-    color: 'white',
   },
   textContainer: {
-    justifyContent: 'center',
-    flex: 1, // Para ocupar el espacio restante
+    flex: 2,
   },
   cliente: {
     fontSize: 16,
-    fontWeight: 'bold',
   },
   servicio: {
     fontSize: 14,
@@ -227,46 +249,55 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
-  estado: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginRight: 10,
-    padding: 5,
-    borderRadius: 5,
-  },
-  confirmado: {
-    backgroundColor: '#d4f8e8',
-    color: '#32a852',
-  },
-  pendiente: {
-    backgroundColor: '#f8f1d4',
-    color: '#d4a832',
+  icono: {
+    marginHorizontal: 10,
   },
   botonNuevoTurno: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#ff5555',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginBottom: 20,
   },
   botonTexto: {
     color: 'white',
-    marginLeft: 10,
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  icono: {
-    marginLeft: 10,
+    marginLeft: 5,
   },
   noTurnosTexto: {
+    fontSize: 16,
+    color: '#777',
     textAlign: 'center',
-    fontSize: 18,
-    color: '#888',
     marginTop: 20,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderBottomWidth: 1,
+    marginBottom: 20,
+    padding: 10,
+    fontSize: 16,
   },
 });
 
