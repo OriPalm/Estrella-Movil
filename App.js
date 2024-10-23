@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Perfil from './screens/perfil';
 import Login from './screens/login'; // Asegúrate de que el nombre del archivo sea correcto
 import Recuperarcontra from './screens/Recuperarcontra'; // Actualiza el nombre del archivo
+import turnos from './screens/turnos';
+import agregarTurnos from './screens/agregarTurnos';
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -29,9 +31,19 @@ export default function App() {
           },
       
          }} />
+
+        <Stack.Screen
+          name="Turnos"
+          component={turnos}
+                />
+        <Stack.Screen
+          name="AgregarTurno"
+          component={agregarTurnos}      
+              />
       </Stack.Navigator>
     );
   }
+
 
   return (
     <NavigationContainer>
