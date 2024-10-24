@@ -1,12 +1,29 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons'; // Importa los íconos de Expo
+import { Ionicons } from '@expo/vector-icons';
+import appFirebase from '../credenciales';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Corrige el typo aquí
+
+const auth = getAuth(appFirebase);
 
 export default function Login() {
   const navigation = useNavigation();
-  const [passwordVisible, setPasswordVisible] = useState(false); // Estado para manejar la visibilidad de la contraseña
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState(''); // Inicialización correcta
+  const [password, setPassword] = useState(''); // Inicialización correcta
+
+  const logueo = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert('Iniciando sesión', 'Accediendo...');
+      navigation.navigate('Turnos'); // Usa navigation aquí
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'No se pudo iniciar sesión. Verifica tus credenciales.'); // Agregado para mostrar error
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -18,20 +35,22 @@ export default function Login() {
       <Text style={styles.titulo}>Bienvenido!</Text>
       <TextInput 
         placeholder='Correo Electrónico'
-        style={styles.textinput}
+        style={styles.textinput} 
+        onChangeText={(text) => setEmail(text)} // Correcto
       />
       <View style={styles.passwordContainer}>
         <TextInput 
           placeholder='Contraseña'
           style={styles.textinputPassword}
           secureTextEntry={!passwordVisible} // Alterna la visibilidad de la contraseña
+          onChangeText={(text) => setPassword(text)} // Correcto
         />
         <TouchableOpacity 
           style={styles.eyeIcon}
           onPress={() => setPasswordVisible(!passwordVisible)} // Alterna el estado de visibilidad
         >
           <Ionicons 
-            name={passwordVisible ? 'eye' : 'eye-off'} // Cambia el ícono según el estado
+            name={passwordVisible ? 'eye' : 'eye-off'} 
             size={24} 
             color="gray" 
           />
@@ -45,7 +64,7 @@ export default function Login() {
         <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => console.log('Iniciar Sesión')}>
+      <TouchableOpacity style={styles.button} onPress={logueo}>
         <Text style={styles.buttonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
 
@@ -93,7 +112,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 55,
     marginTop: 20,
-    paddingRight: 10, // Espacio para el ícono del ojo
+    paddingRight: 10,
   },
   textinputPassword: {
     flex: 1,
