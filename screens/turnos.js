@@ -131,7 +131,7 @@ const Turnos = () => {
         <Text style={styles.noTurnosTexto}>No hay turnos para este día</Text>
       )}
 
-      {/* Modal para agregar nuevo turno */}
+      {/* Modal - agregar nuevo turno */}
       <Modal visible={modalVisible} animationType="fade" transparent={true}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
