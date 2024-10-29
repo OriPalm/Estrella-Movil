@@ -1,16 +1,26 @@
-import { Text, StyleSheet, View, ScrollView, Image, Pressable, onPressFunction } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, Image, Pressable, onPressFunction, Alert } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native'; // Importar navegación
 import Icon from 'react-native-vector-icons/Ionicons';  // Ejemplo con Ionicons
+import { getAuth, signOut } from 'firebase/auth'; // Importa signOut de Firebase
+import appFirebase from '../credenciales';
 
+
+const auth = getAuth(appFirebase);
 
 export default function Perfil() {
     
     const navigation = useNavigation(); // Usar el hook para la navegación
 
-    const onPressFunction = () => {
-      // Aquí puedes añadir la lógica de cierre de sesión, como limpiar tokens o estado de usuario
-      navigation.navigate('Login'); // Vuelve a la pantalla de inicio de sesión
+    const onPressFunction = async () => {
+      try {
+        await signOut(auth);
+        Alert.alert('Cerrando sesión', 'Has cerrado sesión exitosamente.');
+        navigation.navigate('Login');
+      } catch (error) {
+        console.log(error);
+        Alert.alert('Error', 'No se pudo cerrar sesión. Inténtalo de nuevo.');
+      }
     };
     return (
     <ScrollView contentContainerStyle={styles.scrollView}>

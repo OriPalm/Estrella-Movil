@@ -18,7 +18,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       Alert.alert('Iniciando sesión', 'Accediendo...');
-      navigation.navigate('Turnos'); // Usa navigation aquí
+      navigation.navigate('HomeTabs'); // Usa navigation aquí
     } catch (error) {
       console.log(error);
       Alert.alert('Error', 'No se pudo iniciar sesión. Verifica tus credenciales.'); // Agregado para mostrar error
