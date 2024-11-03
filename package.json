@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@icon/ionicons": "^5.4.0-alpha.0",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
@@ -17,7 +18,7 @@
     "expo": "~51.0.37",
     "expo-font": "~12.0.10",
     "expo-status-bar": "~1.12.1",
-    "firebase": "^10.14.1",
+    "firebase": "^10.3.0",
     "react": "18.2.0",
     "react-native": "0.74.5",
     "react-native-gesture-handler": "~2.16.1",
