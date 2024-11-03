@@ -4,14 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { firestore } from '../firebaseconfig';
 import { collection, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { Calendar } from 'react-native-calendars';
 
 const screenWidth = Dimensions.get('window').width;
 
 const Turnos = () => {
   const [turnos, setTurnos] = useState([]);
+  const [turnosFiltrados, setTurnosFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [calendarVisible, setCalendarVisible] = useState(false); 
   const [turnoAEliminar, setTurnoAEliminar] = useState(null);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toISOString().split('T')[0]);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -26,6 +30,15 @@ const Turnos = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Filtrar y ordenar los turnos por hora para la fecha seleccionada
+  useEffect(() => {
+    const turnosDelDia = turnos
+      .filter(turno => turno.fechaTurno === fechaSeleccionada)
+      .sort((a, b) => a.horaTurno.localeCompare(b.horaTurno)); // Ordenar por horaTurno
+
+    setTurnosFiltrados(turnosDelDia);
+  }, [fechaSeleccionada, turnos]);
 
   const confirmarEliminacion = (id) => {
     setTurnoAEliminar(id);
@@ -45,19 +58,55 @@ const Turnos = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Calendario de Turnos</Text>
+
+      {/* Día y Fecha Seleccionada */}
+      <View style={styles.fechaContainer}>
+        <Text style={styles.fechaLabel}>Día:</Text>
+        <TouchableOpacity onPress={() => setCalendarVisible(true)}>
+          <Text style={styles.fechaTexto}>{fechaSeleccionada}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Botón de Nuevo Turno */}
       <TouchableOpacity
         style={styles.botonRojo}
-        onPress={() => navigation.navigate('AgregarTurno')}
+        onPress={() => navigation.navigate('AgregarTurno', { fechaSeleccionada })}
       >
         <Ionicons name="add-circle-outline" size={24} color="white" />
         <Text style={styles.botonTexto}>Nuevo Turno</Text>
       </TouchableOpacity>
 
+      {/* Calendario Modal */}
+      <Modal
+        visible={calendarVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setCalendarVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Calendar
+              onDayPress={(day) => {
+                setFechaSeleccionada(day.dateString);
+                setCalendarVisible(false);
+              }}
+              markedDates={{
+                [fechaSeleccionada]: { selected: true, selectedColor: '#ff5555' },
+              }}
+              theme={{
+                selectedDayBackgroundColor: '#ff5555',
+                arrowColor: '#ff5555',
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
+
       {loading ? (
         <Text>Cargando turnos...</Text>
       ) : (
         <FlatList
-          data={turnos}
+          data={turnosFiltrados}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.turnoContainer}>
@@ -80,10 +129,11 @@ const Turnos = () => {
               </View>
             </View>
           )}
+          ListEmptyComponent={<Text style={styles.noTurnos}>No hay turnos para esta fecha.</Text>}
         />
       )}
 
-      {/* Modal Personalizado para Confirmar Eliminación */}
+      {/* Modal para Confirmación de Eliminación */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -121,6 +171,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+  fechaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  fechaLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  fechaTexto: {
+    fontSize: 18,
+    color: '#ff5555',
+    textDecorationLine: 'underline',
+  },
   botonRojo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -134,20 +199,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     marginLeft: 5,
-  },
-  botonCancelar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ccc',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 20,
-    marginRight: 20,
-  },
-  botonTextoCancelar: {
-    color: 'black',
-    fontSize: 16,
   },
   turnoContainer: {
     width: screenWidth - 40,
@@ -195,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: '80%',
+    width: '90%',
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
@@ -216,6 +267,26 @@ const styles = StyleSheet.create({
   modalButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  botonCancelar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ccc',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginRight: 20,
+  },
+  botonTextoCancelar: {
+    color: 'black',
+    fontSize: 16,
+  },
+  noTurnos: {
+    textAlign: 'center',
+    color: '#777',
+    fontSize: 16,
+    marginTop: 20,
   },
 });
 

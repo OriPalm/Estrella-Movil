@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { firestore } from '../firebaseconfig';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function AgregarTurnos() {
-  const [nombreCliente, setNombreCliente] = useState('');
-  const [fechaTurno, setFechaTurno] = useState('');
-  const [horaTurno, setHoraTurno] = useState('');
-  const [servicio, setServicio] = useState('');
+  const route = useRoute();
   const navigation = useNavigation();
 
+  // Capturar la fecha seleccionada de los parámetros de navegación
+  const { fechaSeleccionada } = route.params || {};
+
+  // Estados para cada campo del formulario
+  const [nombreCliente, setNombreCliente] = useState('');
+  const [fechaTurno, setFechaTurno] = useState(fechaSeleccionada || ''); // Inicializar con la fecha seleccionada
+  const [horaTurno, setHoraTurno] = useState('');
+  const [servicio, setServicio] = useState('');
+
+  // Función para agregar un nuevo turno a Firestore
   const agregarTurno = async () => {
     if (!nombreCliente || !fechaTurno || !horaTurno || !servicio) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
@@ -35,7 +42,7 @@ export default function AgregarTurnos() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Agregar Nuevo Turno</Text>
-      
+
       <Text>Nombre del Cliente:</Text>
       <TextInput
         value={nombreCliente}
@@ -43,7 +50,7 @@ export default function AgregarTurnos() {
         placeholder="Nombre del Cliente"
         style={styles.input}
       />
-      
+
       <Text>Fecha del Turno (YYYY-MM-DD):</Text>
       <TextInput
         value={fechaTurno}
@@ -51,7 +58,7 @@ export default function AgregarTurnos() {
         placeholder="Fecha del Turno"
         style={styles.input}
       />
-      
+
       <Text>Hora del Turno (HH:mm):</Text>
       <TextInput
         value={horaTurno}
@@ -59,7 +66,7 @@ export default function AgregarTurnos() {
         placeholder="Hora del Turno"
         style={styles.input}
       />
-      
+
       <Text>Servicio:</Text>
       <TextInput
         value={servicio}
@@ -67,7 +74,7 @@ export default function AgregarTurnos() {
         placeholder="Servicio"
         style={styles.input}
       />
-      
+
       <TouchableOpacity style={styles.botonRojo} onPress={agregarTurno}>
         <Text style={styles.botonTexto}>Agregar Turno</Text>
       </TouchableOpacity>
@@ -82,7 +89,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
@@ -94,16 +101,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   botonRojo: {
-    backgroundColor: '#ff5555', // Color rojo para el botón
+    backgroundColor: '#ff5555',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20,
   },
   botonTexto: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
-
