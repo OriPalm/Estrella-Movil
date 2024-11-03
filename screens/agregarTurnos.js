@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
-import { firestore } from '../firebaseconfig'; 
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { firestore } from '../firebaseconfig';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function AgregarTurnos() {
-  // Estados para cada campo del formulario
   const [nombreCliente, setNombreCliente] = useState('');
   const [fechaTurno, setFechaTurno] = useState('');
   const [horaTurno, setHoraTurno] = useState('');
   const [servicio, setServicio] = useState('');
+  const navigation = useNavigation();
 
-  // Función para agregar un nuevo turno a Firestore
   const agregarTurno = async () => {
     if (!nombreCliente || !fechaTurno || !horaTurno || !servicio) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
@@ -18,7 +18,6 @@ export default function AgregarTurnos() {
     }
 
     try {
-      // Agregar el documento a la colección "turnos"
       await addDoc(collection(firestore, 'turnos'), {
         nombreCliente,
         fechaTurno,
@@ -26,29 +25,23 @@ export default function AgregarTurnos() {
         servicio,
       });
       Alert.alert('Éxito', 'Turno agregado exitosamente');
-      
-      // Limpiar los campos del formulario después de agregar el turno
-      setNombreCliente('');
-      setFechaTurno('');
-      setHoraTurno('');
-      setServicio('');
+      navigation.goBack();
     } catch (error) {
       console.error("Error al agregar turno:", error);
       Alert.alert('Error', 'Hubo un problema al agregar el turno');
     }
   };
 
-  // Interfaz del formulario
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 18, marginBottom: 10 }}>Pantalla para Agregar Turnos</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Agregar Nuevo Turno</Text>
       
       <Text>Nombre del Cliente:</Text>
       <TextInput
         value={nombreCliente}
         onChangeText={setNombreCliente}
         placeholder="Nombre del Cliente"
-        style={{ borderBottomWidth: 1, marginBottom: 10 }}
+        style={styles.input}
       />
       
       <Text>Fecha del Turno (YYYY-MM-DD):</Text>
@@ -56,7 +49,7 @@ export default function AgregarTurnos() {
         value={fechaTurno}
         onChangeText={setFechaTurno}
         placeholder="Fecha del Turno"
-        style={{ borderBottomWidth: 1, marginBottom: 10 }}
+        style={styles.input}
       />
       
       <Text>Hora del Turno (HH:mm):</Text>
@@ -64,7 +57,7 @@ export default function AgregarTurnos() {
         value={horaTurno}
         onChangeText={setHoraTurno}
         placeholder="Hora del Turno"
-        style={{ borderBottomWidth: 1, marginBottom: 10 }}
+        style={styles.input}
       />
       
       <Text>Servicio:</Text>
@@ -72,10 +65,45 @@ export default function AgregarTurnos() {
         value={servicio}
         onChangeText={setServicio}
         placeholder="Servicio"
-        style={{ borderBottomWidth: 1, marginBottom: 20 }}
+        style={styles.input}
       />
       
-      <Button title="Agregar Turno" onPress={agregarTurno} />
+      <TouchableOpacity style={styles.botonRojo} onPress={agregarTurno}>
+        <Text style={styles.botonTexto}>Agregar Turno</Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderBottomWidth: 1,
+    marginBottom: 20,
+    padding: 10,
+    fontSize: 16,
+  },
+  botonRojo: {
+    backgroundColor: '#ff5555', // Color rojo para el botón
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  botonTexto: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
