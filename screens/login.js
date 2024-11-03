@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,15 @@ export default function Login() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState(''); // Inicialización correcta
   const [password, setPassword] = useState(''); // Inicialización correcta
+
+// Limpiar campos cuando se vuelve a la pantalla de Login
+useEffect(() => {
+  const unsubscribe = navigation.addListener('focus', () => {
+    setEmail('');
+    setPassword('');
+  });
+  return unsubscribe;
+}, [navigation]);
 
   const logueo = async () => {
     try {
@@ -35,7 +44,8 @@ export default function Login() {
       <Text style={styles.titulo}>Bienvenido!</Text>
       <TextInput 
         placeholder='Correo Electrónico'
-        style={styles.textinput} 
+        style={styles.textinput}
+        value={email}  // Muestra el estado en el campo de entrada
         onChangeText={(text) => setEmail(text)} // Correcto
       />
       <View style={styles.passwordContainer}>
@@ -43,6 +53,7 @@ export default function Login() {
           placeholder='Contraseña'
           style={styles.textinputPassword}
           secureTextEntry={!passwordVisible} // Alterna la visibilidad de la contraseña
+          value={password} // Muestra el estado en el campo de entrada
           onChangeText={(text) => setPassword(text)} // Correcto
         />
         <TouchableOpacity 
