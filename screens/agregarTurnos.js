@@ -1,27 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { firestore } from '../firebaseconfig';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 
 export default function AgregarTurnos() {
   const route = useRoute();
   const navigation = useNavigation();
 
-  // Captura la fecha seleccionada de los parámetros de navegación
   const { fechaSeleccionada } = route.params || {};
 
-  // Estados para cada campo del formulario
   const [nombreCliente, setNombreCliente] = useState('');
-  const [fechaTurno, setFechaTurno] = useState(fechaSeleccionada || ''); // Inicializar con la fecha seleccionada
-  const [horaTurno, setHoraTurno] = useState('');
+  const [fechaTurno, setFechaTurno] = useState(fechaSeleccionada || '');
+  const [horaTurno, setHoraTurno] = useState(new Date());
   const [servicio, setServicio] = useState('');
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
-  // Función para agregar un nuevo turno a la BD
+  const handleNombreClienteChange = (text) => {
+    const formattedText = text.replace(/[^a-zA-Z\s]/g, '');
+    setNombreCliente(formattedText);
+  };
+
+  const handleServicioChange = (text) => {
+    const formattedText = text.replace(/[^a-zA-Z,\s]/g, '');
+    setServicio(formattedText);
+  };
+
+  const verificarTurnoExistente = async () => {
+    try {
+      const horaFormateada = horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const q = query(
+        collection(firestore, 'turnos'),
+        where('fechaTurno', '==', fechaTurno),
+        where('horaTurno', '==', horaFormateada)
+      );
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty; 
+    } catch (error) {
+      console.error("Error al verificar turnos existentes:", error);
+      return false;
+    }
+  };
+
   const agregarTurno = async () => {
-    // Validación para rellenar todos los campos
-    if (!nombreCliente || !fechaTurno || !horaTurno || !servicio) {
+    if (!nombreCliente || !fechaTurno || !servicio) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return;
+    }
+
+    const turnoExistente = await verificarTurnoExistente();
+    if (turnoExistente) {
+      Alert.alert('Error', 'Ya hay un turno programado para esta fecha y hora. Por favor selecciona otra.');
       return;
     }
 
@@ -29,7 +59,7 @@ export default function AgregarTurnos() {
       await addDoc(collection(firestore, 'turnos'), {
         nombreCliente,
         fechaTurno,
-        horaTurno,
+        horaTurno: horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         servicio,
       });
       Alert.alert('Éxito', 'Turno agregado exitosamente');
@@ -40,6 +70,38 @@ export default function AgregarTurnos() {
     }
   };
 
+  const onChangeTime = (event, selectedTime) => {
+    const currentTime = selectedTime || horaTurno;
+    const hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
+
+    const isValidTime =
+      (hours >= 9 && hours < 12) ||
+      (hours >= 15 && hours < 21) ||
+      (hours === 12 && minutes === 0) || // Permite exactamente las 12:00
+      (hours === 21 && minutes === 0);   // Permite exactamente las 21:00
+
+    if (!isValidTime) {
+      setShowTimePicker(false); 
+
+      Alert.alert(
+        "Hora no válida",
+        "Por favor, selecciona una hora dentro del horario de atención (09:00-12:00 o 15:00-21:00).",
+        [
+          {
+            text: "OK",
+            onPress: () => setShowTimePicker(true),
+          }
+        ]
+      );
+
+      return;
+    }
+
+    setShowTimePicker(false); 
+    setHoraTurno(currentTime); 
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Agregar Nuevo Turno</Text>
@@ -47,7 +109,7 @@ export default function AgregarTurnos() {
       <Text>Nombre del Cliente:</Text>
       <TextInput
         value={nombreCliente}
-        onChangeText={setNombreCliente}
+        onChangeText={handleNombreClienteChange}
         placeholder="Nombre del Cliente"
         style={styles.input}
       />
@@ -60,18 +122,25 @@ export default function AgregarTurnos() {
         style={styles.input}
       />
 
-      <Text>Hora del Turno (HH:mm):</Text>
-      <TextInput
-        value={horaTurno}
-        onChangeText={setHoraTurno}
-        placeholder="Hora del Turno"
-        style={styles.input}
-      />
+      <Text>Hora del Turno:</Text>
+      <TouchableOpacity style={styles.botonRojo} onPress={() => setShowTimePicker(true)}>
+        <Text style={styles.botonTexto}>Seleccionar Hora</Text>
+      </TouchableOpacity>
+      {showTimePicker && (
+        <DateTimePicker
+          value={horaTurno}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={onChangeTime}
+        />
+      )}
+      <Text>Hora seleccionada: {horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
 
       <Text>Servicio:</Text>
       <TextInput
         value={servicio}
-        onChangeText={setServicio}
+        onChangeText={handleServicioChange}
         placeholder="Servicio"
         style={styles.input}
       />
