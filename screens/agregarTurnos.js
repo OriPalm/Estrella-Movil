@@ -8,7 +8,7 @@ export default function AgregarTurnos() {
   const route = useRoute();
   const navigation = useNavigation();
 
-  // Capturar la fecha seleccionada de los parámetros de navegación
+  // Captura la fecha seleccionada de los parámetros de navegación
   const { fechaSeleccionada } = route.params || {};
 
   // Estados para cada campo del formulario
@@ -17,8 +17,9 @@ export default function AgregarTurnos() {
   const [horaTurno, setHoraTurno] = useState('');
   const [servicio, setServicio] = useState('');
 
-  // Función para agregar un nuevo turno a Firestore
+  // Función para agregar un nuevo turno a la BD
   const agregarTurno = async () => {
+    // Validación para rellenar todos los campos
     if (!nombreCliente || !fechaTurno || !horaTurno || !servicio) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
       return;
