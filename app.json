@@ -4,7 +4,7 @@
     "slug": "estrella",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/iconEstrella.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/logo.png",

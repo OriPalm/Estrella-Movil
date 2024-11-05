@@ -18,6 +18,7 @@ const Turnos = () => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toISOString().split('T')[0]);
   const navigation = useNavigation();
 
+// conectar la app con la bd para pedir los turnos
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(firestore, 'turnos'), (snapshot) => {
       const turnosData = snapshot.docs.map(doc => ({
@@ -31,7 +32,7 @@ const Turnos = () => {
     return () => unsubscribe();
   }, []);
 
-  // Filtrar y ordenar los turnos por hora para la fecha seleccionada
+// Filtrar y ordenar los turnos por hora para la fecha seleccionada
   useEffect(() => {
     const turnosDelDia = turnos
       .filter(turno => turno.fechaTurno === fechaSeleccionada)
@@ -40,6 +41,7 @@ const Turnos = () => {
     setTurnosFiltrados(turnosDelDia);
   }, [fechaSeleccionada, turnos]);
 
+// eliminar y confirmar turno
   const confirmarEliminacion = (id) => {
     setTurnoAEliminar(id);
     setModalVisible(true);
@@ -55,6 +57,7 @@ const Turnos = () => {
     }
   };
 
+  // pantalla turnos
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Calendario de Turnos</Text>
@@ -62,10 +65,12 @@ const Turnos = () => {
       {/* Día y Fecha Seleccionada */}
       <View style={styles.fechaContainer}>
         <Text style={styles.fechaLabel}>Día:</Text>
-        <TouchableOpacity onPress={() => setCalendarVisible(true)}>
+        <TouchableOpacity style={styles.fechaTouchable} onPress={() => setCalendarVisible(true)}>
+          <Ionicons name="calendar-outline" size={24} color="#ff5555" />
           <Text style={styles.fechaTexto}>{fechaSeleccionada}</Text>
         </TouchableOpacity>
       </View>
+
 
       {/* Botón de Nuevo Turno */}
       <TouchableOpacity
@@ -287,6 +292,16 @@ const styles = StyleSheet.create({
     color: '#777',
     fontSize: 16,
     marginTop: 20,
+  },
+  fechaTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fechaTexto: {
+    fontSize: 18,
+    color: '#ff5555',
+    textDecorationLine: 'underline',
+    marginLeft: 5, 
   },
 });
 
