@@ -11,7 +11,7 @@ export default function AgregarTurnos() {
   const { fechaSeleccionada } = route.params || {};
   const [nombreCliente, setNombreCliente] = useState('');
   const [fechaTurno, setFechaTurno] = useState(fechaSeleccionada || '');
-  const [horaTurno, setHoraTurno] = useState(null); // Cambia a null
+  const [horaTurno, setHoraTurno] = useState(null); 
   const [servicio, setServicio] = useState('');
   const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -42,7 +42,7 @@ export default function AgregarTurnos() {
   };
 
   const agregarTurno = async () => {
-    // Validar que se haya seleccionado una hora
+
     if (!horaTurno) {
       Alert.alert('Error', 'Por favor, selecciona una hora antes de agregar el turno.');
       return;
@@ -103,7 +103,7 @@ export default function AgregarTurnos() {
     }
 
     setShowTimePicker(false);
-    setHoraTurno(currentTime); // Solo se actualiza si es válida
+    setHoraTurno(currentTime); 
   };
 
   return (
@@ -139,7 +139,7 @@ export default function AgregarTurnos() {
           onChange={onChangeTime}
         />
       )}
-
+      
       <Text>Hora seleccionada: {horaTurno ? horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No seleccionada'}</Text>
 
       <Text>Servicio:</Text>

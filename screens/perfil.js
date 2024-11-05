@@ -1,8 +1,8 @@
 import { Text, StyleSheet, View, ScrollView, Image, Pressable, onPressFunction, Alert } from 'react-native'
 import React from 'react'
-import { useNavigation } from '@react-navigation/native'; // Importar navegación
-import Icon from 'react-native-vector-icons/Ionicons';  // Ejemplo con Ionicons
-import { getAuth, signOut } from 'firebase/auth'; // Importa signOut de Firebase
+import { useNavigation } from '@react-navigation/native'; 
+import Icon from 'react-native-vector-icons/Ionicons';  
+import { getAuth, signOut } from 'firebase/auth'; 
 import appFirebase from '../credenciales';
 
 
@@ -10,7 +10,7 @@ const auth = getAuth(appFirebase);
 
 export default function Perfil() {
     
-    const navigation = useNavigation(); // Usar el hook para la navegación
+    const navigation = useNavigation(); 
 
     const onPressFunction = async () => {
       try {
@@ -90,5 +90,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
-     },
+    },
   })
