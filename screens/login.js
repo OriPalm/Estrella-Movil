@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, StyleSheet, View, TextInput, TouchableOpacity, Image, Alert, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,7 +14,27 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+
+  const isValidEmail = (email) => {
+    const regex = /\S+@\S+\.\S+/;
+    return regex.test(email);
+  };
+
+// Limpiar campos cuando se vuelve a la pantalla de Login
+useEffect(() => {
+  const unsubscribe = navigation.addListener('focus', () => {
+    setEmail('');
+    setPassword('');
+  });
+  return unsubscribe;
+}, [navigation]);
+
   const logueo = async () => {
+    if (!isValidEmail(email)) {
+      Alert.alert('Error', 'Por favor ingresa un correo electrónico válido.');
+      return;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       Alert.alert('Iniciando sesión', 'Accediendo...');
@@ -26,9 +46,7 @@ export default function Login() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-    >
+    <KeyboardAvoidingView style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
           <Image 
@@ -43,6 +61,7 @@ export default function Login() {
             onChangeText={(text) => setEmail(text)}
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
           />
           <View style={styles.passwordContainer}>
             <TextInput 
@@ -50,6 +69,7 @@ export default function Login() {
               style={styles.textinputPassword}
               secureTextEntry={!passwordVisible}
               onChangeText={(text) => setPassword(text)}
+              value={password}
             />
             <TouchableOpacity 
               style={styles.eyeIcon}

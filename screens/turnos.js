@@ -65,10 +65,12 @@ const Turnos = () => {
       {/* Día y Fecha Seleccionada */}
       <View style={styles.fechaContainer}>
         <Text style={styles.fechaLabel}>Día:</Text>
-        <TouchableOpacity onPress={() => setCalendarVisible(true)}>
+        <TouchableOpacity style={styles.fechaTouchable} onPress={() => setCalendarVisible(true)}>
+          <Ionicons name="calendar-outline" size={24} color="#ff5555" />
           <Text style={styles.fechaTexto}>{fechaSeleccionada}</Text>
         </TouchableOpacity>
       </View>
+
 
       {/* Botón de Nuevo Turno */}
       <TouchableOpacity
@@ -290,6 +292,16 @@ const styles = StyleSheet.create({
     color: '#777',
     fontSize: 16,
     marginTop: 20,
+  },
+  fechaTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fechaTexto: {
+    fontSize: 18,
+    color: '#ff5555',
+    textDecorationLine: 'underline',
+    marginLeft: 5, 
   },
 });
 
