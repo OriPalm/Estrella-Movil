@@ -87,4 +87,5 @@ buttonText: {
 },
 });
 
-export default RecuperarContrasena;
+export default RecuperarContrasena; 
+

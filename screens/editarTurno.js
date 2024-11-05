@@ -1,9 +1,9 @@
-// editarTurno.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { firestore } from '../firebaseconfig';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, query, where, getDocs, collection } from 'firebase/firestore';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function EditarTurno() {
   const route = useRoute();
@@ -12,8 +12,9 @@ export default function EditarTurno() {
 
   const [nombreCliente, setNombreCliente] = useState('');
   const [fechaTurno, setFechaTurno] = useState('');
-  const [horaTurno, setHoraTurno] = useState('');
+  const [horaTurno, setHoraTurno] = useState(new Date());
   const [servicio, setServicio] = useState('');
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   useEffect(() => {
     const cargarTurno = async () => {
@@ -24,7 +25,7 @@ export default function EditarTurno() {
           const data = docSnap.data();
           setNombreCliente(data.nombreCliente);
           setFechaTurno(data.fechaTurno);
-          setHoraTurno(data.horaTurno);
+          setHoraTurno(new Date(`1970-01-01T${data.horaTurno}:00`));
           setServicio(data.servicio);
         } else {
           Alert.alert('Error', 'No se encontró el turno.');
@@ -38,13 +39,35 @@ export default function EditarTurno() {
     cargarTurno();
   }, [turnoId]);
 
+  const verificarTurnoExistente = async () => {
+    try {
+      const horaFormateada = horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const q = query(
+        collection(firestore, 'turnos'),
+        where('fechaTurno', '==', fechaTurno),
+        where('horaTurno', '==', horaFormateada)
+      );
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty; 
+    } catch (error) {
+      console.error("Error al verificar turnos existentes:", error);
+      return false;
+    }
+  };
+
   const actualizarTurno = async () => {
+    const turnoExistente = await verificarTurnoExistente();
+    if (turnoExistente) {
+      Alert.alert('Error', 'Ya hay un turno programado para esta fecha y hora. Por favor selecciona otra.');
+      return; 
+    }
+
     try {
       const docRef = doc(firestore, 'turnos', turnoId);
       await updateDoc(docRef, {
         nombreCliente,
         fechaTurno,
-        horaTurno,
+        horaTurno: horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         servicio,
       });
       Alert.alert('Éxito', 'Turno actualizado exitosamente');
@@ -55,6 +78,38 @@ export default function EditarTurno() {
     }
   };
 
+  const onChangeTime = (event, selectedTime) => {
+    const currentTime = selectedTime || horaTurno;
+    const hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
+  
+    const isValidTime =
+      (hours >= 9 && hours < 12) ||
+      (hours >= 15 && hours < 21) ||
+      (hours === 12 && minutes === 0) || // Permite exactamente las 12:00
+      (hours === 21 && minutes === 0);   // Permite exactamente las 21:00
+  
+    if (!isValidTime) {
+      setShowTimePicker(false);
+  
+      Alert.alert(
+        "Hora no válida",
+        "Por favor, selecciona una hora dentro del horario de atención (09:00-12:00 o 15:00-21:00).",
+        [
+          {
+            text: "OK",
+            onPress: () => setShowTimePicker(true),
+          }
+        ]
+      );
+  
+      return;
+    }
+  
+    setShowTimePicker(false);
+    setHoraTurno(currentTime);
+  };
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Editar Turno</Text>
@@ -75,13 +130,20 @@ export default function EditarTurno() {
         style={styles.input}
       />
 
-      <Text>Hora del Turno (HH:mm):</Text>
-      <TextInput
-        value={horaTurno}
-        onChangeText={setHoraTurno}
-        placeholder="Hora del Turno"
-        style={styles.input}
-      />
+      <Text>Hora del Turno:</Text>
+      <TouchableOpacity style={styles.botonRojo} onPress={() => setShowTimePicker(true)}>
+        <Text style={styles.botonTexto}>Seleccionar Hora</Text>
+      </TouchableOpacity>
+      {showTimePicker && (
+        <DateTimePicker
+          value={horaTurno}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={onChangeTime}
+        />
+      )}
+      <Text>Hora seleccionada: {horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
 
       <Text>Servicio:</Text>
       <TextInput
@@ -115,6 +177,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 10,
     fontSize: 16,
+  },
+  botonRojo: {
+    backgroundColor: '#ff5555',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
   },
   botonActualizar: {
     backgroundColor: '#ff5555',
