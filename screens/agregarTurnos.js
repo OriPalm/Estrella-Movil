@@ -8,12 +8,10 @@ import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 export default function AgregarTurnos() {
   const route = useRoute();
   const navigation = useNavigation();
-
   const { fechaSeleccionada } = route.params || {};
-
   const [nombreCliente, setNombreCliente] = useState('');
   const [fechaTurno, setFechaTurno] = useState(fechaSeleccionada || '');
-  const [horaTurno, setHoraTurno] = useState(new Date());
+  const [horaTurno, setHoraTurno] = useState(null); // Cambia a null
   const [servicio, setServicio] = useState('');
   const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -36,7 +34,7 @@ export default function AgregarTurnos() {
         where('horaTurno', '==', horaFormateada)
       );
       const querySnapshot = await getDocs(q);
-      return !querySnapshot.empty; 
+      return !querySnapshot.empty;
     } catch (error) {
       console.error("Error al verificar turnos existentes:", error);
       return false;
@@ -44,6 +42,12 @@ export default function AgregarTurnos() {
   };
 
   const agregarTurno = async () => {
+    // Validar que se haya seleccionado una hora
+    if (!horaTurno) {
+      Alert.alert('Error', 'Por favor, selecciona una hora antes de agregar el turno.');
+      return;
+    }
+
     if (!nombreCliente || !fechaTurno || !servicio) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
       return;
@@ -82,7 +86,7 @@ export default function AgregarTurnos() {
       (hours === 21 && minutes === 0);   // Permite exactamente las 21:00
 
     if (!isValidTime) {
-      setShowTimePicker(false); 
+      setShowTimePicker(false);
 
       Alert.alert(
         "Hora no válida",
@@ -98,8 +102,8 @@ export default function AgregarTurnos() {
       return;
     }
 
-    setShowTimePicker(false); 
-    setHoraTurno(currentTime); 
+    setShowTimePicker(false);
+    setHoraTurno(currentTime); // Solo se actualiza si es válida
   };
 
   return (
@@ -128,14 +132,15 @@ export default function AgregarTurnos() {
       </TouchableOpacity>
       {showTimePicker && (
         <DateTimePicker
-          value={horaTurno}
+          value={horaTurno || new Date()} 
           mode="time"
           is24Hour={true}
           display="default"
           onChange={onChangeTime}
         />
       )}
-      <Text>Hora seleccionada: {horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+
+      <Text>Hora seleccionada: {horaTurno ? horaTurno.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No seleccionada'}</Text>
 
       <Text>Servicio:</Text>
       <TextInput
